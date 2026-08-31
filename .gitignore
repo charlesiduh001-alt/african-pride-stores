@@ -1,0 +1,16 @@
+# Windows and OneDrive clutter
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# macOS, in case anyone opens this on a Mac
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Not used by this site, but here so a stray install never gets committed
+node_modules/
