@@ -597,10 +597,14 @@ a { color: inherit; }
   color: var(--muted);
 }
 
+/* The right padding leaves room for the dropdown arrow the browser draws
+   inside the box. Without it a long option like "Seasoning powder" runs
+   straight into the arrow on a narrow phone. */
 .card__size select {
   flex: 1;
   min-width: 0;
-  padding: 9px 11px;
+  text-overflow: ellipsis;
+  padding: 9px 28px 9px 11px;
   border: 1.5px solid var(--sand);
   border-radius: var(--radius-sm);
   background: var(--cream);
@@ -1037,6 +1041,10 @@ a { color: inherit; }
   .card__name { font-size: .93rem; }
   .card__blurb { display: none; }
   .card__size > span { display: none; }
+  .card__size select { padding: 8px 24px 8px 9px; font-size: .83rem; }
+
+  /* Tighter so "Order now" stays on one line in a two column grid. */
+  .card__actions .btn { padding: 10px 6px; font-size: .8rem; gap: 5px; }
   .panel { padding: 30px 24px; }
   .trust__item { padding: 16px 10px; gap: 10px; }
   .trust__icon { width: 34px; height: 34px; font-size: .9rem; }

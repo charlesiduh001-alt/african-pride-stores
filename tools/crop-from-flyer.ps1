@@ -18,14 +18,14 @@ $src  = Join-Path $root "images\flyer-source.jpeg"
 $out  = Join-Path $root "images"
 
 $crops = @(
-  @("laziz-vegetable-oil",  36, 534, 178, 200),
-  @("winners-soya-oil",    238, 534, 178, 200),
-  @("knorr-chicken-cubes", 440, 534, 178, 200),
-  @("laziz-ketchup",       642, 534, 178, 200),
-  @("laziz-salad-cream",    36, 792, 178, 170),
-  @("laziz-mayonnaise",    238, 792, 178, 170),
-  @("active-vegetable-oil",440, 792, 178, 170),
-  @("checkers-custard",    642, 792, 178, 170),
+  @("laziz-vegetable-oil",  43, 543, 164, 186),
+  @("winners-soya-oil",    245, 543, 164, 186),
+  @("knorr-chicken-cubes", 447, 543, 164, 186),
+  @("laziz-ketchup",       649, 543, 164, 186),
+  @("laziz-salad-cream",    43, 801, 164, 154),
+  @("laziz-mayonnaise",    245, 801, 164, 154),
+  @("active-vegetable-oil",447, 801, 164, 154),
+  @("checkers-custard",    649, 801, 164, 154),
   @("hero-basket",         565,  88, 288, 282)
 )
 
