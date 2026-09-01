@@ -11,12 +11,11 @@
 
 const CONFIG = {
   // WhatsApp number in international format: no +, no spaces, no zeros in front.
-  // Nigerian 0803 123 4567 becomes 2348031234567.
-  // PLACEHOLDER: swap this for the real shop number.
-  whatsappNumber: "2348031234567",
+  // Nigerian 0815 070 9963 becomes 2348150709963.
+  whatsappNumber: "2348150709963",
 
   // The same number written the pretty way, for display only.
-  phoneDisplay: "0803 123 4567",
+  phoneDisplay: "0815 070 9963",
 
   // Set to true once you have real prices you are happy to publish.
   // While false, cards show a "Ask for price" style prompt instead.

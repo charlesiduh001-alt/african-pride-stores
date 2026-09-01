@@ -30,13 +30,13 @@ The site itself is only the first three files. Nothing else is needed to run it.
 Open `script.js`. The first block is `CONFIG`:
 
 ```js
-whatsappNumber: "2348031234567",
-phoneDisplay: "0803 123 4567",
+whatsappNumber: "2348150709963",
+phoneDisplay: "0815 070 9963",
 ```
 
 `whatsappNumber` must be in international format: no plus sign, no spaces, and
-no zero at the front. A Nigerian number like 0803 123 4567 becomes
-2348031234567.
+no zero at the front. A Nigerian number like 0815 070 9963 becomes
+2348150709963.
 
 `phoneDisplay` is only what people read on screen, so write it however looks
 best.
