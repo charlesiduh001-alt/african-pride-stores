@@ -118,7 +118,21 @@ tight, the coordinates are all at the top of `tools/crop-from-flyer.ps1`. Each
 line is name, left, top, width, height measured on the original 853 by 1280
 flyer. Right click the file and choose "Run with PowerShell" after editing.
 
-### 5. Address and opening hours
+### 5. If the domain ever changes
+
+The address `https://africanpridestores.com` is written into three files. Change
+it in all three or search engines and link previews will point at the old one:
+
+- `index.html`, the `canonical` link and the `og:url` and `og:image` tags near
+  the top
+- `robots.txt`, the Sitemap line
+- `sitemap.xml`, the `loc` line
+
+The `og:` tags are what make a pasted link show a picture and a title in
+WhatsApp instead of bare text. They need the full `https://` address, not a
+relative path, which is why the domain is repeated rather than looked up.
+
+### 6. Address and opening hours
 
 These are still placeholders. In `index.html`, search for `PLACEHOLDER` and you
 will find them in the "Visit us" section.
