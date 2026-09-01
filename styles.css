@@ -799,6 +799,13 @@ a { color: inherit; }
   text-decoration: none;
 }
 
+.detail__note {
+  margin-top: 5px;
+  font-size: .85rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, .68);
+}
+
 .site-footer {
   background: var(--green-900);
   color: rgba(255, 255, 255, .72);

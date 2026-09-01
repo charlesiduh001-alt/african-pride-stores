@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>African Pride Stores | Quality You Can Trust, Prices You'll Love</title>
-<meta name="description" content="African Pride Stores: groceries, cooking oils, seasoning, beverages, snacks and household essentials. Fast and reliable delivery, bulk sales available. Order on WhatsApp.">
+<title>African Pride Stores | Grocery Shop in Abuja, FCT</title>
+<meta name="description" content="Grocery shop in Abuja, FCT. Cooking oils, seasoning, sauces, beverages, snacks and household essentials. Delivery every day, bulk sales available. Order on WhatsApp.">
 <link rel="canonical" href="https://africanpridestores.com/">
 <meta name="theme-color" content="#0A3D1C">
 
@@ -39,13 +39,48 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Kaushan+Script&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="styles.css">
+
+<!-- Tells search engines this is a real grocery shop in Abuja with real
+     opening hours, rather than just a page that mentions the word Abuja.
+     No street address is published by choice, which is fine: the locality
+     and region are enough for local search. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "GroceryStore",
+  "name": "African Pride Stores",
+  "description": "Grocery shop in Abuja, FCT. Cooking oils, seasoning, sauces, beverages, snacks and household essentials, with delivery across the city and bulk sales for homes, businesses and institutions.",
+  "url": "https://africanpridestores.com/",
+  "image": "https://africanpridestores.com/images/share-card.jpg",
+  "logo": "https://africanpridestores.com/icon-512.png",
+  "telephone": "+2348150709963",
+  "priceRange": "₦₦",
+  "currenciesAccepted": "NGN",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Abuja",
+    "addressRegion": "FCT",
+    "addressCountry": "NG"
+  },
+  "areaServed": {
+    "@type": "City",
+    "name": "Abuja"
+  },
+  "openingHoursSpecification": [{
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    "opens": "08:00",
+    "closes": "17:00"
+  }]
+}
+</script>
 </head>
 <body>
 
 <!-- ============================ Top strip ============================ -->
 <div class="topbar">
   <div class="wrap topbar__inner">
-    <span class="topbar__item">Fast and reliable delivery, every day</span>
+    <span class="topbar__item">Fast and reliable delivery across Abuja</span>
     <span class="topbar__divider" aria-hidden="true"></span>
     <a class="topbar__item topbar__phone" href="tel:+2348150709963" data-tel>
       Call or WhatsApp <strong data-phone>0815 070 9963</strong>
@@ -80,7 +115,7 @@
       <a href="#products">Products</a>
       <a href="#categories">What we stock</a>
       <a href="#delivery">Delivery</a>
-      <a href="#visit">Visit us</a>
+      <a href="#visit">Find us</a>
     </nav>
 
     <button class="cart-button" id="cart-button" aria-label="Open your basket">
@@ -240,7 +275,7 @@
     <div class="wrap visit">
 
       <div class="visit__col">
-        <h2>Visit us today</h2>
+        <h2>Order from us today</h2>
         <p class="script script--light">Thank you for supporting local. You are our pride!</p>
       </div>
 
@@ -250,14 +285,14 @@
           <a class="detail__value" href="tel:+2348150709963" data-tel data-phone>0815 070 9963</a>
         </div>
         <div class="detail">
-          <p class="detail__label">Find us</p>
-          <!-- PLACEHOLDER: replace with the real street address. -->
-          <p class="detail__value">Convenient location, great service, always</p>
+          <p class="detail__label">Where we are</p>
+          <p class="detail__value">Abuja, FCT</p>
+          <p class="detail__note">We deliver across the city. Message us and we will sort out directions or drop off.</p>
         </div>
         <div class="detail">
           <p class="detail__label">Opening hours</p>
-          <!-- PLACEHOLDER: replace with the real opening hours. -->
-          <p class="detail__value">Monday to Saturday, 8am to 8pm</p>
+          <p class="detail__value">Monday to Saturday, 8am to 5pm</p>
+          <p class="detail__note">Closed on Sundays.</p>
         </div>
         <a class="btn btn--gold btn--wide" href="#" target="_blank" rel="noopener" data-wa-general>
           Message us on WhatsApp
