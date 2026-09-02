@@ -39,6 +39,8 @@ const CONFIG = {
                 set it when "Type" or "Flavour" reads better.
        image:   file name inside the images/ folder. If the file is missing,
                 a drawn placeholder shows instead, so nothing ever looks broken.
+       images:  optional. Different photo per choice, so the picture changes
+                when the customer picks a size. See below.
        art:     shape of that placeholder: "jug", "bottle", "jar" or "box"
        colour:  main colour of the placeholder
      }
@@ -63,6 +65,27 @@ const CONFIG = {
    front, so the shopper reads a tidy "2kg" under the "Vanilla" heading.
 
    Leave sizes as [] if the product only comes one way.
+
+   To show a different photo per choice, add an images block. The key is the
+   choice, the value is the file name:
+
+     image: "laziz-vegetable-oil.jpg",        // used when nothing else matches
+     images: {
+       "5 litres": "laziz-vegetable-oil-5l.jpg",
+       "750ml":    "laziz-vegetable-oil-750ml.jpg",
+     },
+
+   You only list the ones that actually look different. Anything missing falls
+   back to image, so a half finished set still works.
+
+   A group name works as a key too. Checkers custard has nine choices but only
+   three real looks, so three lines cover it rather than nine:
+
+     images: {
+       "Vanilla":  "checkers-vanilla.jpg",
+       "3n1 Milk": "checkers-milk.jpg",
+       "Banana":   "checkers-banana.jpg",
+     },
 
    To add a product, copy any block below and change the values.
    -------------------------------------------------------------------------- */
@@ -351,6 +374,29 @@ function sizeOptionsHtml(sizes) {
     .join("");
 }
 
+/* Which group a choice belongs to, or null for a plain ungrouped list.
+   Used so one photo can cover every size of a flavour. */
+function groupForOption(product, option) {
+  for (const entry of product.sizes) {
+    if (typeof entry !== "string" && entry.options.includes(option)) {
+      return entry.group;
+    }
+  }
+  return null;
+}
+
+/* The photo to show for the chosen option. Tries the exact choice, then the
+   group it belongs to, then the product's default photo. */
+function imageForOption(product, option) {
+  const map = product.images || {};
+  if (option && map[option]) return map[option];
+
+  const group = groupForOption(product, option);
+  if (group && map[group]) return map[group];
+
+  return product.image;
+}
+
 function productCard(product) {
   const card = document.createElement("article");
   card.className = "card";
@@ -360,11 +406,20 @@ function productCard(product) {
   const sizeOptions = sizeOptionsHtml(product.sizes);
   const chooseLabel = product.chooseLabel || "Size";
 
+  // Whichever choice the dropdown opens on, so the card starts on the matching
+  // photo rather than swapping the moment someone touches it.
+  const firstEntry = product.sizes[0];
+  const firstOption = !firstEntry
+    ? ""
+    : typeof firstEntry === "string"
+    ? firstEntry
+    : firstEntry.options[0];
+
   card.innerHTML = `
     <div class="card__media">
       <div class="card__art">${placeholderArt(product)}</div>
-      <img src="images/${product.image}" alt="${product.name}"
-           loading="lazy" onerror="this.remove()">
+      <img src="images/${imageForOption(product, firstOption)}" alt="${product.name}"
+           loading="lazy" onerror="this.classList.add('is-missing')">
     </div>
 
     <div class="card__body">
@@ -402,7 +457,33 @@ function productCard(product) {
     waLink.href = whatsappLink(singleItemMessage(product, chosenSize()));
   };
   refreshLink();
-  if (select) select.addEventListener("change", refreshLink);
+
+  /* Swap the photo to match the chosen size.
+
+     The new photo is loaded out of sight first. Only once it has arrived do we
+     put it on screen, so the card never flashes empty, and a size with no photo
+     of its own simply keeps showing the one already there. */
+  const photo = card.querySelector(".card__media img");
+  const showPhotoFor = (option) => {
+    if (!photo) return;
+
+    const next = "images/" + imageForOption(product, option);
+    if (photo.getAttribute("src") === next) return;
+
+    const probe = new Image();
+    probe.onload = function () {
+      photo.setAttribute("src", next);
+      photo.classList.remove("is-missing");
+    };
+    probe.src = next;
+  };
+
+  if (select) {
+    select.addEventListener("change", function () {
+      refreshLink();
+      showPhotoFor(select.value);
+    });
+  }
 
   card.querySelector(".btn--add").addEventListener("click", function () {
     addToCart(product.id, chosenSize());

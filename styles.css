@@ -553,6 +553,10 @@ a { color: inherit; }
   background: var(--white);
 }
 
+/* Hidden rather than removed, so that if the photo for one size is missing the
+   card can still swap back to a size that does have one. */
+.card__media img.is-missing { display: none; }
+
 .card__body {
   display: flex;
   flex-direction: column;
