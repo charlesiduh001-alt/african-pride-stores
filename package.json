@@ -1,0 +1,24 @@
+{
+  "name": "african-pride-stores",
+  "version": "1.0.0",
+  "description": "A single page shop site. Customers browse products, pick a size, then either order one item straight away on WhatsApp or fill a basket and send the whole list in one message.",
+  "main": "script.js",
+  "scripts": {
+    "dev": "python3 -m http.server 8080",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlesiduh001-alt/african-pride-stores.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/charlesiduh001-alt/african-pride-stores/issues"
+  },
+  "homepage": "https://github.com/charlesiduh001-alt/african-pride-stores#readme",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}
