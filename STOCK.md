@@ -21,7 +21,15 @@ Same with prices. Leave the price blank and the card falls back to
 
 ### 1. Make the sheet
 
-Create a new Google Sheet with these five column headings in row 1:
+**Start from `stock-sheet-starter.csv` in this folder.** Every product and every
+size is already listed, 31 rows, with the stock and price columns left empty for
+you to fill in.
+
+In Google Sheets: **File**, **Import**, **Upload**, choose that file, and pick
+**Replace spreadsheet**. That saves you typing 31 ids by hand and getting one
+of them subtly wrong.
+
+Or build it yourself with these five column headings in row 1:
 
 | id | Product | Size | Out of stock | Price |
 | --- | --- | --- | --- | --- |
