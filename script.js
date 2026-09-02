@@ -99,10 +99,12 @@ const PRODUCTS = [
     category: "oils",
     sizes: ["5 litres", "3 litres", "1.6 litres", "1 litre", "750ml"],
     image: "laziz-vegetable-oil.jpg",
-    // Only the 3 litre looks different enough to be worth its own photo.
-    // The smaller bottles fall back to the 5 litre shot until we have them.
+    // Every size has its own photo from the manufacturer portfolio.
     images: {
       "3 litres": "laziz-vegetable-oil-3l.jpg",
+      "1.6 litres": "laziz-vegetable-oil-1-6l.jpg",
+      "1 litre": "laziz-vegetable-oil-1l.jpg",
+      "750ml": "laziz-vegetable-oil-750ml.jpg",
     },
     art: "jug",
     colour: "#F2B705",
@@ -140,11 +142,11 @@ const PRODUCTS = [
     brand: "Winners",
     blurb: "100% pure soya goodness.",
     category: "oils",
-    sizes: ["5 litres", "3 litres"],
+    // Only the 5 litre is stocked, and it is the green capped bottle. The
+    // manufacturer portfolio only has the yellow capped version, so this photo
+    // stays as the one cropped from the shop flyer, which is the right product.
+    sizes: ["5 litres"],
     image: "winners-soya-oil.jpg",
-    images: {
-      "3 litres": "winners-soya-oil-3l.jpg",
-    },
     art: "bottle",
     colour: "#F5D547",
   },
@@ -163,6 +165,22 @@ const PRODUCTS = [
     image: "knorr-chicken-cubes.jpg",
     art: "box",
     colour: "#1B7A3E",
+  },
+  {
+    id: "laziz-cubes",
+    name: "Laziz Seasoning Cubes",
+    brand: "Laziz",
+    blurb: "The secret flavour boost.",
+    category: "seasoning",
+    chooseLabel: "Type",
+    sizes: ["Chicken, 100 x 20", "Beef, 100 x 20"],
+    image: "laziz-cubes-chicken.jpg",
+    images: {
+      "Chicken, 100 x 20": "laziz-cubes-chicken.jpg",
+      "Beef, 100 x 20": "laziz-cubes-beef.jpg",
+    },
+    art: "box",
+    colour: "#F2C200",
   },
 
   {
