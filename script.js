@@ -155,12 +155,11 @@ const PRODUCTS = [
     brand: "Winners",
     blurb: "100% pure soya goodness.",
     category: "oils",
-    // Only the 5 litre is stocked, and it is the green capped bottle. The
-    // manufacturer portfolio only has the yellow capped version, so this photo
-    // stays as the one cropped from the shop flyer, which is the right product.
+    // Only the 5 litre is stocked, and it is the translucent jerrycan with the
+    // heart label, not the ribbed bottle the portfolio also pictures.
     sizes: ["5 litres"],
     image: "winners-soya-oil.jpg",
-    art: "bottle",
+    art: "jug",
     colour: "#F5D547",
   },
 
