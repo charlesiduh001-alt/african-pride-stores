@@ -1,31 +1,36 @@
 Product photos.
 
-All of these were cut out of the shop flyer, which is kept here as
-flyer-source.jpeg. Every product on the site has a real photo, so nothing shows
-a placeholder at the moment.
+Most of these are official packshots taken from the Laziz product portfolio PDF,
+trimmed and resized. A few are still cut from the shop flyer, which is kept here
+as flyer-source.jpeg.
 
-  laziz-vegetable-oil.jpg
-  winners-soya-oil.jpg
-  active-vegetable-oil.jpg
-  knorr-chicken-cubes.jpg     (used for the whole Knorr card)
+OFFICIAL PACKSHOTS, from the Laziz portfolio:
+  laziz-vegetable-oil.jpg        Laziz 5 litre
+  laziz-vegetable-oil-3l.jpg     Laziz 3 litre
+  laziz-premium-oil.jpg          Laziz Premium
   laziz-ketchup.jpg
-  laziz-salad-cream.jpg
   laziz-mayonnaise.jpg
-  checkers-custard.jpg        (used for every custard flavour)
-  hero-basket.jpg             (the basket photo at the top of the page)
+  laziz-salad-cream.jpg
+  winners-soya-oil.jpg           Winner 5 litre
+  winners-soya-oil-3l.jpg        Winner 3 litre
+  active-vegetable-oil.jpg       Active 25 litre keg
+  active-vegetable-oil-5l.jpg    Active 5 litre
 
-Two of these stand in for a family of products. The Knorr card covers the cubes
-and the powders behind one photo, and the custard card covers vanilla, 3n1 milk
-and banana behind one photo. That is fine, and it is how the flyer does it too.
-If you would rather each one had its own picture, they need to be split back
-into separate products in script.js first.
+STILL FROM THE FLYER, lower quality, worth replacing:
+  knorr-chicken-cubes.jpg        also stands in for beef, powder and jollof
+  checkers-custard.jpg           also stands in for all three flavours
+  hero-basket.jpg                the basket at the top of the page
+  share-card.jpg                 the WhatsApp link preview banner
 
-The file name has to match exactly. Each one matches the "image" field of a
-product in script.js, so the moment the file exists the photo replaces the
-placeholder on that card. No code change needed.
+STILL WANTED, these sizes currently fall back to another photo:
+  Laziz 1.6 litre, 1 litre and 750ml
+  Active 3 litre
+  Knorr beef cubes, seasoning powder, jollof spice
+  Checkers 3n1 Milk and Banana
 
-Because these came off a flyer they are softer than a proper product shot. To
-replace one, just save your own photo over the top using the same file name.
+A size with no photo of its own simply shows the product's default photo, so
+missing ones never look broken. To add one, save it here and add a line to the
+images block of that product in script.js.
 
 Tips for good product shots:
   - Square, around 800 by 800 pixels.

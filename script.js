@@ -99,8 +99,25 @@ const PRODUCTS = [
     category: "oils",
     sizes: ["5 litres", "3 litres", "1.6 litres", "1 litre", "750ml"],
     image: "laziz-vegetable-oil.jpg",
+    // Only the 3 litre looks different enough to be worth its own photo.
+    // The smaller bottles fall back to the 5 litre shot until we have them.
+    images: {
+      "3 litres": "laziz-vegetable-oil-3l.jpg",
+    },
     art: "jug",
     colour: "#F2B705",
+  },
+  {
+    id: "laziz-premium-oil",
+    name: "Laziz Premium Vegetable Oil",
+    brand: "Laziz",
+    blurb: "The premium grade, light and clean.",
+    category: "oils",
+    // TODO: add the sizes you stock, for example ["5 litres", "3 litres"].
+    sizes: [],
+    image: "laziz-premium-oil.jpg",
+    art: "jug",
+    colour: "#F5D98A",
   },
   {
     id: "active-vegetable-oil",
@@ -110,6 +127,10 @@ const PRODUCTS = [
     category: "oils",
     sizes: ["25 litres", "5 litres", "3 litres"],
     image: "active-vegetable-oil.jpg",
+    // Default photo is the 25 litre keg, so the 5 litre needs its own.
+    images: {
+      "5 litres": "active-vegetable-oil-5l.jpg",
+    },
     art: "bottle",
     colour: "#E8A317",
   },
@@ -121,6 +142,9 @@ const PRODUCTS = [
     category: "oils",
     sizes: ["5 litres", "3 litres"],
     image: "winners-soya-oil.jpg",
+    images: {
+      "3 litres": "winners-soya-oil-3l.jpg",
+    },
     art: "bottle",
     colour: "#F5D547",
   },
