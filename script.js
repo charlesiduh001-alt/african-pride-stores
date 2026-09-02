@@ -115,11 +115,23 @@ const PRODUCTS = [
     brand: "Laziz",
     blurb: "The premium grade, light and clean.",
     category: "oils",
-    // TODO: add the sizes you stock, for example ["5 litres", "3 litres"].
-    sizes: [],
+    // Both sizes share the one photo. The portfolio only pictures the bottle
+    // once, because it is the same container with a different size printed on.
+    sizes: ["5 litres", "3 litres"],
     image: "laziz-premium-oil.jpg",
     art: "jug",
     colour: "#F5D98A",
+  },
+  {
+    id: "active-gold",
+    name: "Active Gold",
+    brand: "Active",
+    blurb: "Premium refined soya oil.",
+    category: "oils",
+    sizes: ["5 litres", "3 litres"],
+    image: "active-gold.jpg",
+    art: "jug",
+    colour: "#EFE0A8",
   },
   {
     id: "active-vegetable-oil",
@@ -128,10 +140,11 @@ const PRODUCTS = [
     blurb: "A healthy choice for a better you.",
     category: "oils",
     sizes: ["25 litres", "5 litres", "3 litres"],
+    // The default is now the jerrycan rather than the keg, because the 3 litre
+    // has no photo of its own and a jerrycan is far closer to it than a keg.
     image: "active-vegetable-oil.jpg",
-    // Default photo is the 25 litre keg, so the 5 litre needs its own.
     images: {
-      "5 litres": "active-vegetable-oil-5l.jpg",
+      "25 litres": "active-vegetable-oil-25l.jpg",
     },
     art: "bottle",
     colour: "#E8A317",

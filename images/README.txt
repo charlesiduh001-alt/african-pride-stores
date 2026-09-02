@@ -14,8 +14,10 @@ OFFICIAL PACKSHOTS, from the Laziz portfolio:
   laziz-ketchup.jpg
   laziz-mayonnaise.jpg
   laziz-salad-cream.jpg
-  active-vegetable-oil.jpg         Active 25 litre keg
-  active-vegetable-oil-5l.jpg      Active 5 litre
+  active-vegetable-oil.jpg         Active 5 litre jerrycan, also used for 3 litre
+  active-vegetable-oil-25l.jpg     Active 25 litre keg
+  active-gold.jpg                  Active Gold, used for both 5 and 3 litre
+  winners-soya-oil.jpg             Winner 5 litre, the clear bottle
 
 CUT FROM THE LAZIZ PROMO GRAPHIC, orange background rather than white:
   laziz-cubes-chicken.jpg
@@ -25,18 +27,17 @@ the white packshots around them. The Laziz portfolio does have plain white
 sachet shots if you would rather swap to those.
 
 STILL FROM THE FLYER, lower quality:
-  winners-soya-oil.jpg           kept on purpose, see below
   knorr-chicken-cubes.jpg        also stands in for beef, powder and jollof
   checkers-custard.jpg           also stands in for all three flavours
   hero-basket.jpg                the basket at the top of the page
   share-card.jpg                 the WhatsApp link preview banner
 
-WHY WINNERS STAYS ON THE FLYER CROP: the shop sells the green capped 5 litre.
-The manufacturer portfolio only pictures the yellow capped bottle, so the
-sharper photo would show the wrong product. Accuracy beats sharpness here.
+ONE PHOTO COVERING SEVERAL SIZES: the portfolio photographs each container
+once, because a 3 litre and a 5 litre are the same bottle with a different
+number printed on it. So Active, Active Gold and Laziz Premium each share one
+photo across their sizes. That is accurate, not a shortcut.
 
 STILL WANTED, these currently fall back to another photo:
-  Active 3 litre
   Knorr beef cubes, seasoning powder, jollof spice
   Checkers 3n1 Milk and Banana
 
