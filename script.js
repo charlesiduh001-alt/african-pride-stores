@@ -17,9 +17,18 @@ const CONFIG = {
   // The same number written the pretty way, for display only.
   phoneDisplay: "0815 070 9963",
 
-  // Set to true once you have real prices you are happy to publish.
-  // While false, cards show a "Ask for price" style prompt instead.
-  showPrices: false,
+  // Link to the stock and price sheet, so the shop can mark things out of
+  // stock and change prices without touching any code. Paste the published
+  // CSV address here. STOCK.md explains how to set the sheet up.
+  //
+  // Leaving this empty switches the whole thing off and the site behaves
+  // exactly as it does now, so it is safe to leave blank until the sheet
+  // is ready.
+  stockSheetUrl: "",
+
+  // Shown where the sheet has no price for something. Prices move often, so
+  // saying nothing is safer than showing a number that has gone stale.
+  noPriceText: "Call or chat for today's price",
 };
 
 
@@ -291,6 +300,123 @@ function placeholderArt(product) {
 
 
 /* --------------------------------------------------------------------------
+   3b. Stock and prices, read from a Google Sheet
+   --------------------------------------------------------------------------
+   The shop keeps one sheet with a row per item. The site reads it on load, so
+   staff can mark something out of stock or change a price from a phone with no
+   code and no deploy.
+
+   Nothing here is required. If the sheet is missing, unreachable, empty or
+   malformed, every product simply shows as normal with no price. A shop that
+   looks ordinary is a far better failure than a shop that looks broken or,
+   worse, wrongly promises something is in stock.
+   -------------------------------------------------------------------------- */
+
+// Keyed by product id, and by "id|size" for a single size.
+const stockInfo = new Map();
+
+function stockKey(id, size) {
+  return size ? id + "|" + size : id;
+}
+
+/* Splits a line of CSV, respecting quotes, because product names and sizes
+   contain commas: "Chicken, 100 x 20" is one field, not two. */
+function parseCsvLine(line) {
+  const out = [];
+  let field = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+
+    if (inQuotes) {
+      if (ch === '"') {
+        if (line[i + 1] === '"') { field += '"'; i++; }  // an escaped quote
+        else inQuotes = false;
+      } else {
+        field += ch;
+      }
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ",") {
+      out.push(field); field = "";
+    } else {
+      field += ch;
+    }
+  }
+
+  out.push(field);
+  return out.map((f) => f.trim());
+}
+
+function parseCsv(text) {
+  return text
+    .split(/\r?\n/)
+    .filter((line) => line.trim() !== "")
+    .map(parseCsvLine);
+}
+
+// Anything a person might reasonably type to mean "we have run out".
+function meansOutOfStock(value) {
+  return ["yes", "y", "true", "1", "x", "out", "no stock"].includes(
+    String(value || "").trim().toLowerCase()
+  );
+}
+
+async function loadStockSheet() {
+  if (!CONFIG.stockSheetUrl) return;
+
+  let rows;
+  try {
+    const res = await fetch(CONFIG.stockSheetUrl, { cache: "no-store" });
+    if (!res.ok) return;
+    rows = parseCsv(await res.text());
+  } catch (err) {
+    return; // Offline, or the sheet was unpublished. Carry on as normal.
+  }
+
+  if (rows.length < 2) return;
+
+  // Find the columns by heading, so the sheet can be reordered or have extra
+  // columns added without breaking anything.
+  const heads = rows[0].map((h) => h.toLowerCase());
+  const col = (...names) => heads.findIndex((h) => names.some((n) => h.includes(n)));
+
+  const idCol = col("id");
+  const sizeCol = col("size", "option");
+  const outCol = col("out of stock", "out", "sold");
+  const priceCol = col("price");
+
+  if (idCol === -1) return; // Without an id column there is nothing to match on.
+
+  for (const row of rows.slice(1)) {
+    const id = row[idCol];
+    if (!id) continue;
+
+    const size = sizeCol === -1 ? "" : row[sizeCol];
+    const entry = {
+      out: outCol !== -1 && meansOutOfStock(row[outCol]),
+      price: priceCol === -1 ? "" : row[priceCol],
+    };
+
+    stockInfo.set(stockKey(id, size), entry);
+  }
+}
+
+/* What to show for one product at one size. A size specific row wins over a
+   whole product row, so you can mark just the 25 litre as finished. */
+function stockFor(id, size) {
+  const exact = size ? stockInfo.get(stockKey(id, size)) : null;
+  const whole = stockInfo.get(id);
+
+  return {
+    out: Boolean((exact && exact.out) || (whole && whole.out)),
+    price: (exact && exact.price) || (whole && whole.price) || "",
+  };
+}
+
+
+/* --------------------------------------------------------------------------
    4. Cart
    The cart is a plain array kept in memory and mirrored into localStorage so
    it survives a page refresh. Each line is identified by product id plus size,
@@ -378,6 +504,15 @@ function singleItemMessage(product, size) {
   );
 }
 
+function backInStockMessage(product, size) {
+  const withSize = size ? product.name + " (" + size + ")" : product.name;
+  return (
+    "Hello African Pride Stores, is " +
+    withSize +
+    " back in stock? Please let me know when you have it."
+  );
+}
+
 function basketMessage() {
   const lines = cart.map(function (line, index) {
     const product = PRODUCTS.find((p) => p.id === line.id);
@@ -399,6 +534,10 @@ function basketMessage() {
    -------------------------------------------------------------------------- */
 
 const grid = document.getElementById("product-grid");
+
+// One function per card, called again once the stock sheet arrives so the
+// cards can update without being rebuilt.
+const cardRefreshers = [];
 
 /* Builds the contents of a size dropdown from either form of the sizes list.
    A plain string becomes one option. A group becomes a heading with its own
@@ -471,6 +610,7 @@ function productCard(product) {
 
   card.innerHTML = `
     <div class="card__media">
+      <span class="card__badge" hidden>Out of stock</span>
       <div class="card__art">${placeholderArt(product)}</div>
       <img src="images/${imageForOption(product, firstOption)}" alt="${product.name}"
            loading="lazy" onerror="this.classList.add('is-missing')">
@@ -490,13 +630,13 @@ function productCard(product) {
           : `<p class="card__size card__size--single">One standard size</p>`
       }
 
-      ${CONFIG.showPrices ? "" : `<p class="card__price">Call or chat for today's price</p>`}
+      <p class="card__price"></p>
 
       <div class="card__actions">
         <button class="btn btn--add" type="button">Add to basket</button>
         <a class="btn btn--wa" href="#" target="_blank" rel="noopener"
            aria-label="Order ${product.name} on WhatsApp">
-          ${whatsappIcon()} Order now
+          ${whatsappIcon()} <span class="btn__label">Order now</span>
         </a>
       </div>
     </div>
@@ -532,23 +672,70 @@ function productCard(product) {
     probe.src = next;
   };
 
+  /* Reflects the sheet: the price for this size, and whether it has run out.
+
+     When something is sold out we do not simply disable the WhatsApp button
+     and leave the customer at a dead end. The button becomes "Ask when it's
+     back", which keeps a conversation going instead of losing the sale. */
+  const badge = card.querySelector(".card__badge");
+  const priceEl = card.querySelector(".card__price");
+  const addBtn = card.querySelector(".btn--add");
+  const waLabel = waLink.querySelector(".btn__label");
+
+  function refreshStock() {
+    const size = chosenSize();
+    const info = stockFor(product.id, size);
+
+    card.classList.toggle("is-out", info.out);
+    badge.hidden = !info.out;
+
+    priceEl.textContent = info.out
+      ? "Currently out of stock"
+      : info.price || CONFIG.noPriceText;
+
+    addBtn.disabled = info.out;
+    waLabel.textContent = info.out ? "Ask when it's back" : "Order now";
+    waLink.href = whatsappLink(
+      info.out
+        ? backInStockMessage(product, size)
+        : singleItemMessage(product, size)
+    );
+
+    // Flag sold out sizes in the dropdown itself, so a customer can see what
+    // else is available without clicking through every option.
+    if (select) {
+      for (const option of select.options) {
+        const soldOut = stockFor(product.id, option.value).out;
+        const base = option.dataset.label || option.textContent;
+        option.dataset.label = base;
+        option.textContent = soldOut ? base + " (out of stock)" : base;
+      }
+    }
+  }
+
   if (select) {
     select.addEventListener("change", function () {
       refreshLink();
+      refreshStock();
       showPhotoFor(select.value);
     });
   }
 
-  card.querySelector(".btn--add").addEventListener("click", function () {
+  addBtn.addEventListener("click", function () {
+    if (this.disabled) return;
     addToCart(product.id, chosenSize());
     flashButton(this, "Added");
   });
+
+  refreshStock();
+  cardRefreshers.push(refreshStock);
 
   return card;
 }
 
 function renderProducts() {
   grid.innerHTML = "";
+  cardRefreshers.length = 0;
   PRODUCTS.forEach((product) => grid.appendChild(productCard(product)));
 }
 
@@ -724,6 +911,13 @@ function init() {
   });
 
   document.getElementById("year").textContent = new Date().getFullYear();
+
+  /* The stock sheet is fetched after the page is already usable, so a slow or
+     unreachable sheet never delays the products appearing. When it arrives the
+     cards update themselves in place. */
+  loadStockSheet().then(function () {
+    cardRefreshers.forEach((refresh) => refresh());
+  });
 }
 
 init();

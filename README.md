@@ -44,13 +44,17 @@ best.
 Change those two lines and every phone link, WhatsApp button and contact detail
 on the page updates. That is the only place the number lives.
 
-### 2. Prices
+### 2. Prices and what is sold out
 
-Prices are hidden by default, because grocery prices move too often to leave
-sitting on a website. Cards currently say "Call or chat for today's price".
+Both are controlled from a **Google Sheet**, not from the code, because
+grocery prices move too often to live in a file. Tick a box on your phone and
+the site follows.
 
-If you later want to show prices, set `showPrices: true` in `CONFIG` and add a
-price to each product.
+See **[STOCK.md](STOCK.md)** for how to set it up. It takes about ten minutes
+once, and after that you never touch the code to change a price again.
+
+Until the sheet is connected, cards say "Call or chat for today's price" and
+nothing is marked sold out, which is exactly how the site behaves today.
 
 ### 3. Products and sizes
 

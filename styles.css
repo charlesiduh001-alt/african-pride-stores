@@ -633,6 +633,37 @@ a { color: inherit; }
   color: var(--green-600);
 }
 
+/* Sold out ------------------------------------------------------------- */
+
+.card__badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--red);
+  color: var(--white);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* The photo fades but stays readable, so a customer can still see what the
+   product is and ask when it will be back. */
+.card.is-out .card__media img,
+.card.is-out .card__art { opacity: .45; filter: grayscale(.5); }
+
+.card.is-out .card__price { color: var(--red-deep); }
+
+.card__actions .btn--add:disabled {
+  background: var(--sand);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+.card__actions .btn--add:disabled:hover { transform: none; }
+
 .card__actions {
   display: grid;
   gap: 8px;
