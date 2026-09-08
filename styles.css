@@ -834,6 +834,13 @@ a { color: inherit; }
   text-decoration: none;
 }
 
+/* The two buttons belong together, so they sit closer than the details above
+   them, which are separate facts. */
+.visit__actions {
+  display: grid;
+  gap: 10px;
+}
+
 .detail__note {
   margin-top: 5px;
   font-size: .85rem;

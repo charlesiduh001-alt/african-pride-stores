@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(git add -A)",
+      "PowerShell(git commit -F \"C:\\\\Users\\\\charl\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-charl-OneDrive-Desktop-african-pride-stores\\\\600e01c7-4773-4a5f-8251-162e306d9e3d\\\\scratchpad\\\\msg.txt\")"
+    ]
+  }
+}

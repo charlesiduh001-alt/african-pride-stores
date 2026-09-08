@@ -122,7 +122,28 @@ tight, the coordinates are all at the top of `tools/crop-from-flyer.ps1`. Each
 line is name, left, top, width, height measured on the original 853 by 1280
 flyer. Right click the file and choose "Run with PowerShell" after editing.
 
-### 5. If the domain ever changes
+### 5. Taking payment
+
+There is a **Pay for your order** button in the "Visit us" section linking to a
+Paystack payment page. It is a variable amount page, so the customer types the
+total you agreed with them on WhatsApp.
+
+One link covers every order. Fixed price pages would mean one per size, 31 of
+them, all going stale the next time a price moves.
+
+The link lives in `index.html`, in the "Visit us" section. To change it, swap
+the `https://paystack.shop/...` address.
+
+**Why it is a hosted Paystack page and not a checkout on this site:** verifying
+that a payment really happened needs a secret key, and a secret key cannot go
+anywhere near a website's code because anyone can read it. This site has no
+server to keep one in. With a hosted page, Paystack handles the whole
+transaction, card details never touch this site, and there is no key to leak.
+
+If you ever want a real basket-to-checkout flow, that needs a backend, and it
+is a proper project rather than an edit.
+
+### 6. If the domain ever changes
 
 The address `https://africanpridestores.com` is written into three files. Change
 it in all three or search engines and link previews will point at the old one:
