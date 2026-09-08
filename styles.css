@@ -994,6 +994,88 @@ a { color: inherit; }
   line-height: 1.45;
 }
 
+.cart-item__money {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.cart-item__money strong { color: var(--green-800); font-weight: 800; }
+
+.totals {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 4px;
+}
+.totals span {
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.totals strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--green-800);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Shown instead of a total when the basket contains something with no price
+   or something sold out. */
+.drawer__blocked {
+  font-size: .84rem;
+  line-height: 1.5;
+  color: var(--red-deep);
+  background: #FDF0F0;
+  border: 1px solid #F3D2D2;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.drawer__field { display: grid; gap: 5px; }
+.drawer__field > span {
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.drawer__field input {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1.5px solid var(--sand);
+  border-radius: var(--radius-sm);
+  background: var(--cream);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+}
+.drawer__field input:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+.drawer__field small {
+  font-size: .74rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.drawer__field.is-invalid input { border-color: var(--red); background: #FDF5F5; }
+.drawer__field.is-invalid small { color: var(--red-deep); }
+.drawer__field.is-invalid small::after {
+  content: " Please enter a number we can reach you on.";
+  font-weight: 700;
+}
+
+.btn--pay {
+  background: var(--green-800);
+  color: var(--white);
+  font-size: 1rem;
+  padding: 15px 20px;
+}
+.btn--pay:hover { background: var(--green-700); }
+.btn--pay span { font-variant-numeric: tabular-nums; }
+
 .drawer__foot .btn--wa {
   background: var(--wa);
   color: var(--white);

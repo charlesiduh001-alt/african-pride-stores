@@ -28,7 +28,27 @@ const CONFIG = {
 
   // Shown where the sheet has no price for something. Prices move often, so
   // saying nothing is safer than showing a number that has gone stale.
-  noPriceText: "Call or chat for today's price",
+  noPriceText: "Ask us for today's price",
+
+  // The Paystack payment page. The basket sends the total to it.
+  //
+  // Important: this page takes the amount in NAIRA, not kobo. 12500 means
+  // twelve thousand five hundred naira. That is the opposite of Paystack's
+  // API, which uses kobo, so do not "correct" it. Checked against the real
+  // page on 2026-09-08.
+  paystackPageUrl: "https://paystack.shop/pay/rxc1b74jry",
+
+  // Where a Google Form records each order, so the shop knows what was bought
+  // when the money lands. Paystack only reports who paid and how much.
+  //
+  // Leave empty and the basket still works, it just will not keep a record.
+  // ORDERS.md explains how to set this up.
+  orderFormUrl: "",
+  orderFormFields: {
+    phone: "",   // entry.xxxxxxx for the phone number question
+    order: "",   // entry.xxxxxxx for the list of items
+    total: "",   // entry.xxxxxxx for the total
+  },
 };
 
 
@@ -403,16 +423,41 @@ async function loadStockSheet() {
   }
 }
 
+/* Turns what somebody typed in the sheet into a number we can add up.
+   "₦12,500" and "12500" and "N12,500.00" all become 12500.
+
+   Returns null when there is no usable number, which is treated as "no price"
+   rather than as zero. Charging somebody zero because a cell was untidy would
+   be a great deal worse than showing no price at all. */
+function priceToNumber(text) {
+  if (!text) return null;
+
+  const digits = String(text).replace(/[^0-9.]/g, "");
+  if (!digits) return null;
+
+  const value = Number(digits);
+  return Number.isFinite(value) && value > 0 ? value : null;
+}
+
 /* What to show for one product at one size. A size specific row wins over a
    whole product row, so you can mark just the 25 litre as finished. */
 function stockFor(id, size) {
   const exact = size ? stockInfo.get(stockKey(id, size)) : null;
   const whole = stockInfo.get(id);
+  const price = (exact && exact.price) || (whole && whole.price) || "";
 
   return {
     out: Boolean((exact && exact.out) || (whole && whole.out)),
-    price: (exact && exact.price) || (whole && whole.price) || "",
+    price: price,
+    amount: priceToNumber(price),
   };
+}
+
+/* Naira for display. The sheet's own wording is used wherever there is one,
+   so the shop controls exactly how prices read. This is only for totals the
+   site works out itself. */
+function formatNaira(amount) {
+  return "₦" + amount.toLocaleString("en-NG");
 }
 
 
@@ -486,6 +531,52 @@ function cartCount() {
   return cart.reduce((total, line) => total + line.qty, 0);
 }
 
+/* Adds the basket up.
+
+   A basket can only be paid for if every single line has a price and none of
+   them is sold out. If one item is missing a price we do not quietly leave it
+   out and charge for the rest, because the customer would pay a total that
+   does not match what they are expecting to receive. Instead the whole basket
+   falls back to asking us, and `blockedBy` says which items caused it. */
+function cartTotal() {
+  let total = 0;
+  const noPrice = [];
+  const soldOut = [];
+
+  for (const line of cart) {
+    const product = PRODUCTS.find((p) => p.id === line.id);
+    if (!product) continue;
+
+    const info = stockFor(line.id, line.size);
+    const label = line.size ? product.name + " (" + line.size + ")" : product.name;
+
+    if (info.out) soldOut.push(label);
+    else if (info.amount === null) noPrice.push(label);
+    else total += info.amount * line.qty;
+  }
+
+  return {
+    total: total,
+    payable: cart.length > 0 && noPrice.length === 0 && soldOut.length === 0,
+    noPrice: noPrice,
+    soldOut: soldOut,
+  };
+}
+
+/* The order written down for the shop, one item per line. */
+function orderSummary() {
+  return cart
+    .map(function (line) {
+      const product = PRODUCTS.find((p) => p.id === line.id);
+      const name = product ? product.name : line.id;
+      const label = line.size ? name + " (" + line.size + ")" : name;
+      const info = stockFor(line.id, line.size);
+      const money = info.amount === null ? "" : "  " + formatNaira(info.amount * line.qty);
+      return label + " x" + line.qty + money;
+    })
+    .join("\n");
+}
+
 
 /* --------------------------------------------------------------------------
    5. WhatsApp links
@@ -495,13 +586,36 @@ function whatsappLink(message) {
   return "https://wa.me/" + CONFIG.whatsappNumber + "?text=" + encodeURIComponent(message);
 }
 
-function singleItemMessage(product, size) {
-  const withSize = size ? product.name + " (" + size + ")" : product.name;
-  return (
-    "Hello African Pride Stores, I would like to order " +
-    withSize +
-    ". Is it available?"
-  );
+
+/* The Paystack page with the total already filled in.
+
+   The amount goes in as NAIRA. Rounded to a whole naira because Paystack
+   rejects odd fractions and nobody prices groceries in kobo. */
+function paystackLink(total) {
+  return CONFIG.paystackPageUrl + "?amount=" + Math.round(total);
+}
+
+/* Writes the order into a Google Sheet through a Google Form, so the shop can
+   see what a payment was for. Paystack only reports who paid and how much.
+
+   Sent with no-cors, which means the browser will not let us read the reply.
+   That is fine: there is nothing useful in it, and the submission still lands.
+   It also means a failure here can never block the customer from paying, which
+   is the right way round. Taking the money matters more than the paperwork,
+   and the phone number gives the shop a way to reach them either way. */
+function recordOrder(phone, total) {
+  const url = CONFIG.orderFormUrl;
+  const fields = CONFIG.orderFormFields || {};
+  if (!url || !fields.phone) return Promise.resolve(false);
+
+  const body = new URLSearchParams();
+  body.append(fields.phone, phone);
+  if (fields.order) body.append(fields.order, orderSummary());
+  if (fields.total) body.append(fields.total, formatNaira(Math.round(total)));
+
+  return fetch(url, { method: "POST", mode: "no-cors", body: body })
+    .then(() => true)
+    .catch(() => false);
 }
 
 function backInStockMessage(product, size) {
@@ -513,7 +627,9 @@ function backInStockMessage(product, size) {
   );
 }
 
-function basketMessage() {
+/* Used only when the basket cannot be totalled, so the customer can ask about
+   the items rather than being stuck. Ordering itself happens through Paystack. */
+function priceEnquiryMessage() {
   const lines = cart.map(function (line, index) {
     const product = PRODUCTS.find((p) => p.id === line.id);
     const name = product ? product.name : line.id;
@@ -522,9 +638,8 @@ function basketMessage() {
   });
 
   return (
-    "Hello African Pride Stores, I would like to order:\n\n" +
-    lines.join("\n") +
-    "\n\nPlease confirm availability and the total. Thank you."
+    "Hello African Pride Stores, please can you tell me the price for:\n\n" +
+    lines.join("\n")
   );
 }
 
@@ -634,9 +749,11 @@ function productCard(product) {
 
       <div class="card__actions">
         <button class="btn btn--add" type="button">Add to basket</button>
-        <a class="btn btn--wa" href="#" target="_blank" rel="noopener"
-           aria-label="Order ${product.name} on WhatsApp">
-          ${whatsappIcon()} <span class="btn__label">Order now</span>
+        <!-- Only appears when the item has sold out, so the customer can ask
+             to be told when it returns. Ordering happens through the basket. -->
+        <a class="btn btn--wa" href="#" target="_blank" rel="noopener" hidden
+           aria-label="Ask about ${product.name} on WhatsApp">
+          ${whatsappIcon()} <span class="btn__label">Ask when it's back</span>
         </a>
       </div>
     </div>
@@ -645,12 +762,8 @@ function productCard(product) {
   const select = card.querySelector("select");
   const chosenSize = () => (select ? select.value : "");
 
-  // Keep the single item WhatsApp link in step with the chosen size.
+  // Only used to ask about a sold out item. See refreshStock below.
   const waLink = card.querySelector(".btn--wa");
-  const refreshLink = () => {
-    waLink.href = whatsappLink(singleItemMessage(product, chosenSize()));
-  };
-  refreshLink();
 
   /* Swap the photo to match the chosen size.
 
@@ -680,7 +793,6 @@ function productCard(product) {
   const badge = card.querySelector(".card__badge");
   const priceEl = card.querySelector(".card__price");
   const addBtn = card.querySelector(".btn--add");
-  const waLabel = waLink.querySelector(".btn__label");
 
   function refreshStock() {
     const size = chosenSize();
@@ -694,12 +806,10 @@ function productCard(product) {
       : info.price || CONFIG.noPriceText;
 
     addBtn.disabled = info.out;
-    waLabel.textContent = info.out ? "Ask when it's back" : "Order now";
-    waLink.href = whatsappLink(
-      info.out
-        ? backInStockMessage(product, size)
-        : singleItemMessage(product, size)
-    );
+
+    // The WhatsApp button is only for asking about something sold out.
+    waLink.hidden = !info.out;
+    if (info.out) waLink.href = whatsappLink(backInStockMessage(product, size));
 
     // Flag sold out sizes in the dropdown itself, so a customer can see what
     // else is available without clicking through every option.
@@ -715,7 +825,6 @@ function productCard(product) {
 
   if (select) {
     select.addEventListener("change", function () {
-      refreshLink();
       refreshStock();
       showPhotoFor(select.value);
     });
@@ -772,7 +881,26 @@ const cartList = document.getElementById("cart-list");
 const cartEmpty = document.getElementById("cart-empty");
 const cartFooter = document.getElementById("cart-footer");
 const cartCountEl = document.getElementById("cart-count");
-const cartSendBtn = document.getElementById("cart-send");
+const cartTotals = document.getElementById("cart-totals");
+const cartTotalValue = document.getElementById("cart-total-value");
+const cartBlocked = document.getElementById("cart-blocked");
+const cartPhoneField = document.getElementById("cart-phone-field");
+const cartPhone = document.getElementById("cart-phone");
+const cartPayBtn = document.getElementById("cart-pay");
+const cartPayAmount = document.getElementById("cart-pay-amount");
+const cartAskBtn = document.getElementById("cart-ask");
+
+/* The money line under a basket item: what it costs, or why it cannot be
+   counted. Says "sold out" and "no price" plainly rather than showing 0. */
+function cartLineNote(line) {
+  const info = stockFor(line.id, line.size);
+
+  if (info.out) return "Sold out";
+  if (info.amount === null) return "Price on request";
+
+  const each = line.qty > 1 ? formatNaira(info.amount) + " each &middot; " : "";
+  return each + "<strong>" + formatNaira(info.amount * line.qty) + "</strong>";
+}
 
 function renderCart() {
   const count = cartCount();
@@ -795,6 +923,7 @@ function renderCart() {
       <div class="cart-item__text">
         <p class="cart-item__name">${product.name}</p>
         ${line.size ? `<p class="cart-item__size">${line.size}</p>` : ""}
+        <p class="cart-item__money">${cartLineNote(line)}</p>
       </div>
       <div class="cart-item__qty">
         <button type="button" data-step="-1" aria-label="Reduce quantity">&minus;</button>
@@ -810,7 +939,38 @@ function renderCart() {
     cartList.appendChild(item);
   });
 
-  cartSendBtn.href = whatsappLink(basketMessage());
+  refreshTotals();
+}
+
+/* Shows the total, and decides whether the basket can be paid for at all. */
+function refreshTotals() {
+  const sums = cartTotal();
+
+  cartTotalValue.textContent = formatNaira(Math.round(sums.total));
+  cartPayAmount.textContent = formatNaira(Math.round(sums.total));
+  cartPayBtn.href = paystackLink(sums.total);
+
+  // Say plainly what is wrong rather than showing a total that is not real.
+  let problem = "";
+  if (sums.soldOut.length) {
+    problem =
+      "Please remove " + sums.soldOut.join(", ") + ". It has sold out.";
+  } else if (sums.noPrice.length) {
+    problem =
+      "We do not have a price on the site for " +
+      sums.noPrice.join(", ") +
+      ". Send us a message and we will tell you the cost.";
+  }
+
+  cartBlocked.hidden = !problem;
+  cartBlocked.textContent = problem;
+
+  cartAskBtn.hidden = !problem;
+  if (problem) cartAskBtn.href = whatsappLink(priceEnquiryMessage());
+
+  cartTotals.hidden = !sums.payable;
+  cartPayBtn.hidden = !sums.payable;
+  cartPhoneField.hidden = !sums.payable;
 }
 
 function openCart() {
@@ -888,6 +1048,40 @@ function init() {
   document.getElementById("cart-close").addEventListener("click", closeCart);
   document.getElementById("cart-clear").addEventListener("click", clearCart);
   overlay.addEventListener("click", closeCart);
+
+  /* Paying. The order is written down first so the shop can tell what the
+     money is for, then the customer is handed to Paystack.
+
+     The recording is given a short head start but is never allowed to hold
+     anyone up: if the form is slow or broken we go to Paystack anyway. A
+     customer blocked from paying is a worse outcome than a missing row in a
+     spreadsheet, and the phone number reaches them either way. */
+  cartPayBtn.addEventListener("click", function (event) {
+    event.preventDefault();
+
+    const sums = cartTotal();
+    if (!sums.payable) return;
+
+    const phone = cartPhone.value.trim();
+    if (phone.replace(/\D/g, "").length < 10) {
+      cartPhone.focus();
+      cartPhoneField.classList.add("is-invalid");
+      return;
+    }
+    cartPhoneField.classList.remove("is-invalid");
+
+    const target = paystackLink(sums.total);
+    const go = () => window.open(target, "_blank", "noopener");
+
+    Promise.race([
+      recordOrder(phone, sums.total),
+      new Promise((resolve) => setTimeout(resolve, 2500)),
+    ]).then(go, go);
+  });
+
+  cartPhone.addEventListener("input", function () {
+    cartPhoneField.classList.remove("is-invalid");
+  });
 
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") closeCart();

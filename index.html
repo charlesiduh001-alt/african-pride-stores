@@ -31,7 +31,7 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="African Pride Stores">
-<meta name="twitter:description" content="Groceries and more, delivered every day. Order on WhatsApp.">
+<meta name="twitter:description" content="Groceries and more, delivered across Abuja. Pay online, delivered to your door.">
 <meta name="twitter:image" content="https://africanpridestores.com/images/share-card.jpg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -155,7 +155,7 @@
         <div class="hero__actions">
           <a class="btn btn--gold" href="#products">Browse products</a>
           <a class="btn btn--ghost" href="#" target="_blank" rel="noopener" data-wa-general>
-            Chat on WhatsApp
+            Ask a question
           </a>
         </div>
       </div>
@@ -198,10 +198,10 @@
 
       <header class="section__head">
         <p class="eyebrow eyebrow--dark">Our quality products</p>
-        <h2>Pick your size, then order in one tap</h2>
+        <h2>Pick your size, add to your basket, pay</h2>
         <p class="section__sub">
-          Add several items to your basket and send the whole list on WhatsApp,
-          or order a single item straight away.
+          Fill your basket and pay for everything in one go. Card, bank transfer
+          or USSD, handled securely by Paystack.
         </p>
       </header>
 
@@ -252,11 +252,11 @@
         <p class="panel__tag">Fast and reliable</p>
         <h3>We deliver quality every day</h3>
         <p>
-          Send us your list on WhatsApp and we will get it to your door.
-          Same friendly service whether it is one bottle or a full month of shopping.
+          Pay for your basket online and we will get it to your door. Same
+          friendly service whether it is one bottle or a full month of shopping.
         </p>
-        <a class="btn btn--gold" href="#" target="_blank" rel="noopener" data-wa-general>
-          Send your list
+        <a class="btn btn--gold" href="#products">
+          Start your basket
         </a>
       </article>
 
@@ -311,7 +311,7 @@
 
         <div class="visit__actions">
           <a class="btn btn--gold btn--wide" href="#" target="_blank" rel="noopener" data-wa-general>
-            Message us on WhatsApp
+            Ask a question on WhatsApp
           </a>
           <a class="btn btn--ghost btn--wide" href="https://paystack.shop/pay/rxc1b74jry"
              target="_blank" rel="noopener">
@@ -344,24 +344,47 @@
   </header>
 
   <p class="drawer__empty" id="cart-empty">
-    Your basket is empty. Add a few items and send the whole list to us in one message.
+    Your basket is empty. Add what you need and pay for it all in one go.
   </p>
 
   <ul class="drawer__list" id="cart-list"></ul>
 
   <footer class="drawer__foot" id="cart-footer" hidden>
-    <p class="drawer__note">
-      We will confirm availability and the total on WhatsApp before anything is packed.
-    </p>
-    <a class="btn btn--wa btn--wide" id="cart-send" href="#" target="_blank" rel="noopener">
-      Send this basket on WhatsApp
+
+    <div class="totals" id="cart-totals">
+      <span>Total</span>
+      <strong id="cart-total-value">&#8358;0</strong>
+    </div>
+
+    <!-- Shown instead of the pay button when something in the basket has no
+         price or has sold out, because a total would be wrong. -->
+    <p class="drawer__blocked" id="cart-blocked" hidden></p>
+    <a class="btn btn--wa btn--wide" id="cart-ask" href="#" target="_blank" rel="noopener" hidden>
+      Ask us about these items
     </a>
+
+    <label class="drawer__field" id="cart-phone-field">
+      <span>Your phone number</span>
+      <input type="tel" id="cart-phone" inputmode="tel" autocomplete="tel"
+             placeholder="0803 000 0000">
+      <small>So we can match your payment to your order and call you about delivery.</small>
+    </label>
+
+    <a class="btn btn--pay btn--wide" id="cart-pay" href="#">
+      Pay <span id="cart-pay-amount">&#8358;0</span>
+    </a>
+
+    <p class="drawer__note">
+      Payment is handled by Paystack. Card, bank transfer or USSD. Delivery is
+      arranged separately once we have your order.
+    </p>
+
     <button class="drawer__clear" id="cart-clear" type="button">Empty basket</button>
   </footer>
 </aside>
 
 
-<a class="fab" href="#" target="_blank" rel="noopener" data-wa-general aria-label="Chat with us on WhatsApp">
+<a class="fab" href="#" target="_blank" rel="noopener" data-wa-general aria-label="Ask us a question on WhatsApp">
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.86 9.86 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.19 8.19 0 0 1 2.41 5.83c0 4.54-3.7 8.23-8.24 8.23zm4.52-6.17c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.8-.79.97-.14.16-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.39.11-.51.11-.11.25-.29.37-.43.13-.15.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.16 0-.43.06-.65.31-.23.25-.86.84-.86 2.05s.88 2.38 1 2.54c.12.17 1.73 2.64 4.19 3.7.58.25 1.04.4 1.4.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.11-.23-.17-.48-.29z"/>
   </svg>
