@@ -12,5 +12,11 @@ $RECYCLE.BIN/
 .idea/
 *.swp
 
+# Local tooling settings. These belong to whoever's machine they are on, not
+# to the website, and launch.json here was an auto generated template for a
+# dev server this site does not have.
+.claude/settings.local.json
+.claude/launch.json
+
 # Not used by this site, but here so a stray install never gets committed
 node_modules/
