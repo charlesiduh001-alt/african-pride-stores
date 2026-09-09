@@ -50,6 +50,9 @@ const CONFIG = {
     phone: "entry.2052636919", // the Phone number question
     order: "entry.1470874920", // the Order question
     total: "entry.1969927736", // the Total question
+    // Add an Email question to the form and paste its code here. Until then
+    // the email is still passed to Paystack, just not written to the sheet.
+    email: "",
   },
 };
 
@@ -635,8 +638,36 @@ function whatsappLink(message) {
 
    The amount goes in as NAIRA. Rounded to a whole naira because Paystack
    rejects odd fractions and nobody prices groceries in kobo. */
-function paystackLink(total) {
-  return CONFIG.paystackPageUrl + "?amount=" + Math.round(total);
+/* Nigerian numbers for Paystack's phone box.
+
+   That box already shows a +234, so it wants the number without the leading
+   zero. Handing it 08031112222 produces +23408031112222, which is not a real
+   number. Everything is reduced to the plain ten digits: 8031112222. */
+function localPhoneDigits(phone) {
+  let digits = String(phone || "").replace(/\D/g, "");
+  if (digits.startsWith("234")) digits = digits.slice(3);
+  if (digits.startsWith("0")) digits = digits.slice(1);
+  return digits;
+}
+
+function paystackLink(total, email, phone) {
+  let link = CONFIG.paystackPageUrl + "?amount=" + Math.round(total);
+
+  // Paystack requires an email on every transaction and there is no way to
+  // remove the field. Passing these through means the customer fills them in
+  // once, here, rather than again on the payment page.
+  if (email) link += "&email=" + encodeURIComponent(email);
+
+  const digits = localPhoneDigits(phone);
+  if (digits) link += "&phone=" + encodeURIComponent(digits);
+
+  return link;
+}
+
+/* Loose on purpose. The job is to catch a typo like a missing @, not to police
+   what counts as a real address, and Paystack checks it properly anyway. */
+function looksLikeEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
 }
 
 /* Writes the order into a Google Sheet through a Google Form, so the shop can
@@ -647,13 +678,14 @@ function paystackLink(total) {
    It also means a failure here can never block the customer from paying, which
    is the right way round. Taking the money matters more than the paperwork,
    and the phone number gives the shop a way to reach them either way. */
-function recordOrder(phone, total) {
+function recordOrder(phone, email, total) {
   const url = CONFIG.orderFormUrl;
   const fields = CONFIG.orderFormFields || {};
   if (!url || !fields.phone) return Promise.resolve(false);
 
   const body = new URLSearchParams();
   body.append(fields.phone, phone);
+  if (fields.email) body.append(fields.email, email);
   if (fields.order) body.append(fields.order, orderSummary());
   if (fields.total) body.append(fields.total, formatNaira(Math.round(total)));
 
@@ -973,6 +1005,8 @@ const cartTotalValue = document.getElementById("cart-total-value");
 const cartBlocked = document.getElementById("cart-blocked");
 const cartPhoneField = document.getElementById("cart-phone-field");
 const cartPhone = document.getElementById("cart-phone");
+const cartEmailField = document.getElementById("cart-email-field");
+const cartEmail = document.getElementById("cart-email");
 const cartPayBtn = document.getElementById("cart-pay");
 const cartPayAmount = document.getElementById("cart-pay-amount");
 const cartAskBtn = document.getElementById("cart-ask");
@@ -1062,6 +1096,7 @@ function refreshTotals() {
   cartTotals.hidden = !sums.payable;
   cartPayBtn.hidden = !sums.payable;
   cartPhoneField.hidden = !sums.payable;
+  cartEmailField.hidden = !sums.payable;
 }
 
 function openCart() {
@@ -1154,24 +1189,33 @@ function init() {
     if (!sums.payable) return;
 
     const phone = cartPhone.value.trim();
-    if (phone.replace(/\D/g, "").length < 10) {
-      cartPhone.focus();
-      cartPhoneField.classList.add("is-invalid");
+    const email = cartEmail.value.trim();
+
+    const badPhone = phone.replace(/\D/g, "").length < 10;
+    const badEmail = !looksLikeEmail(email);
+
+    cartPhoneField.classList.toggle("is-invalid", badPhone);
+    cartEmailField.classList.toggle("is-invalid", badEmail);
+
+    if (badPhone || badEmail) {
+      (badPhone ? cartPhone : cartEmail).focus();
       return;
     }
-    cartPhoneField.classList.remove("is-invalid");
 
-    const target = paystackLink(sums.total);
+    const target = paystackLink(sums.total, email, phone);
     const go = () => window.open(target, "_blank", "noopener");
 
     Promise.race([
-      recordOrder(phone, sums.total),
+      recordOrder(phone, email, sums.total),
       new Promise((resolve) => setTimeout(resolve, 2500)),
     ]).then(go, go);
   });
 
   cartPhone.addEventListener("input", function () {
     cartPhoneField.classList.remove("is-invalid");
+  });
+  cartEmail.addEventListener("input", function () {
+    cartEmailField.classList.remove("is-invalid");
   });
 
   document.addEventListener("keydown", function (event) {
