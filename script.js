@@ -44,11 +44,12 @@ const CONFIG = {
   //
   // Leave empty and the basket still works, it just will not keep a record.
   // ORDERS.md explains how to set this up.
-  orderFormUrl: "",
+  orderFormUrl:
+    "https://docs.google.com/forms/d/e/1FAIpQLSf-uCaKI_cPC1whE_ZTwYIVkUgJLBmc8ruNpJhbKufwpD-Fhw/formResponse",
   orderFormFields: {
-    phone: "",   // entry.xxxxxxx for the phone number question
-    order: "",   // entry.xxxxxxx for the list of items
-    total: "",   // entry.xxxxxxx for the total
+    phone: "entry.2052636919", // the Phone number question
+    order: "entry.1470874920", // the Order question
+    total: "entry.1969927736", // the Total question
   },
 };
 
