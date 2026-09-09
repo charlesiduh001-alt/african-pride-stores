@@ -24,7 +24,8 @@ const CONFIG = {
   // Leaving this empty switches the whole thing off and the site behaves
   // exactly as it does now, so it is safe to leave blank until the sheet
   // is ready.
-  stockSheetUrl: "",
+  stockSheetUrl:
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmMoauyoDpGS4HA_siqdcgBuXreOfDpww44zG84gJQBqDYsTqwyUV3tUkhZO8b_aeTEuXrWaL6y4PQ/pub?output=csv",
 
   // Shown where the sheet has no price for something. Prices move often, so
   // saying nothing is safer than showing a number that has gone stale.
