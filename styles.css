@@ -633,6 +633,24 @@ a { color: inherit; }
   color: var(--green-600);
 }
 
+/* Single and carton prices side by side. The one currently selected is
+   darker, so the card still answers "what will I be charged" at a glance. */
+.card__price .price-part {
+  display: block;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.card__price .price-part em {
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+.card__price .price-part.is-chosen { color: var(--green-800); }
+.card__price .price-part.is-chosen::before {
+  content: "▸ ";
+  color: var(--gold-deep);
+}
+
 /* Sold out ------------------------------------------------------------- */
 
 .card__badge {

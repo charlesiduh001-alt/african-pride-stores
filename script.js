@@ -871,9 +871,22 @@ function productCard(product) {
 
     const pack = packInfo(product.id, size, chosenPack());
 
-    priceEl.textContent = info.out
-      ? "Currently out of stock"
-      : pack.display || CONFIG.noPriceText;
+    /* Both prices are shown at once rather than only the selected one. This is
+       a wholesale business, so a buyer needs the carton price without having to
+       open a dropdown to find it, while a walk in customer still sees the
+       single price and is not frightened off by a carton figure. */
+    if (info.out) {
+      priceEl.textContent = "Currently out of stock";
+    } else if (info.hasCarton && info.price) {
+      const cartonWords = info.cartonQty ? "carton of " + info.cartonQty : "carton";
+      priceEl.innerHTML =
+        '<span class="price-part' + (chosenPack() === "single" ? " is-chosen" : "") + '">' +
+        info.price + " <em>single</em></span>" +
+        '<span class="price-part' + (chosenPack() === "carton" ? " is-chosen" : "") + '">' +
+        info.cartonPrice + " <em>" + cartonWords + "</em></span>";
+    } else {
+      priceEl.textContent = pack.display || CONFIG.noPriceText;
+    }
 
     addBtn.disabled = info.out;
 
