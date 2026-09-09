@@ -405,7 +405,11 @@ async function loadStockSheet() {
   const idCol = col("id");
   const sizeCol = col("size", "option");
   const outCol = col("out of stock", "out", "sold");
-  const priceCol = col("price");
+  // "carton price" has to be looked for before plain "price", otherwise the
+  // loose match would claim the carton column for the single price.
+  const cartonPriceCol = heads.findIndex((h) => h.includes("carton price"));
+  const cartonQtyCol = heads.findIndex((h) => h.includes("carton qty") || h.includes("per carton"));
+  const priceCol = heads.findIndex((h, i) => h.includes("price") && i !== cartonPriceCol);
 
   if (idCol === -1) return; // Without an id column there is nothing to match on.
 
@@ -417,6 +421,8 @@ async function loadStockSheet() {
     const entry = {
       out: outCol !== -1 && meansOutOfStock(row[outCol]),
       price: priceCol === -1 ? "" : row[priceCol],
+      cartonPrice: cartonPriceCol === -1 ? "" : row[cartonPriceCol],
+      cartonQty: cartonQtyCol === -1 ? "" : row[cartonQtyCol],
     };
 
     stockInfo.set(stockKey(id, size), entry);
@@ -444,13 +450,39 @@ function priceToNumber(text) {
 function stockFor(id, size) {
   const exact = size ? stockInfo.get(stockKey(id, size)) : null;
   const whole = stockInfo.get(id);
-  const price = (exact && exact.price) || (whole && whole.price) || "";
+  const pick = (field) => (exact && exact[field]) || (whole && whole[field]) || "";
+
+  const price = pick("price");
+  const cartonPrice = pick("cartonPrice");
+  const cartonAmount = priceToNumber(cartonPrice);
+  const cartonQty = priceToNumber(pick("cartonQty"));
 
   return {
     out: Boolean((exact && exact.out) || (whole && whole.out)),
     price: price,
     amount: priceToNumber(price),
+    // A carton only counts as available to buy if it has a price of its own.
+    // Without one there is nothing to charge, so the option is not offered.
+    cartonPrice: cartonPrice,
+    cartonAmount: cartonAmount,
+    cartonQty: cartonQty,
+    hasCarton: cartonAmount !== null,
   };
+}
+
+/* Price and wording for one choice on a card: a single, or a whole carton. */
+function packInfo(id, size, pack) {
+  const info = stockFor(id, size);
+
+  if (pack === "carton" && info.hasCarton) {
+    return {
+      amount: info.cartonAmount,
+      display: info.cartonPrice,
+      label: info.cartonQty ? "Carton of " + info.cartonQty : "Carton",
+    };
+  }
+
+  return { amount: info.amount, display: info.price, label: "Single" };
 }
 
 /* Naira for display. The sheet's own wording is used wherever there is one,
@@ -489,18 +521,20 @@ function saveCart() {
   }
 }
 
-function lineKey(id, size) {
-  return id + "|" + (size || "");
+/* A basket line is identified by product, size and whether it is a single or a
+   carton, because all three change what the customer receives and pays. */
+function lineKey(id, size, pack) {
+  return id + "|" + (size || "") + "|" + (pack || "single");
 }
 
-function addToCart(id, size) {
-  const key = lineKey(id, size);
-  const existing = cart.find((line) => lineKey(line.id, line.size) === key);
+function addToCart(id, size, pack) {
+  const key = lineKey(id, size, pack);
+  const existing = cart.find((line) => lineKey(line.id, line.size, line.pack) === key);
 
   if (existing) {
     existing.qty += 1;
   } else {
-    cart.push({ id: id, size: size || "", qty: 1 });
+    cart.push({ id: id, size: size || "", pack: pack || "single", qty: 1 });
   }
 
   saveCart();
@@ -509,12 +543,12 @@ function addToCart(id, size) {
 }
 
 function changeQty(key, delta) {
-  const line = cart.find((item) => lineKey(item.id, item.size) === key);
+  const line = cart.find((item) => lineKey(item.id, item.size, item.pack) === key);
   if (!line) return;
 
   line.qty += delta;
   if (line.qty <= 0) {
-    cart = cart.filter((item) => lineKey(item.id, item.size) !== key);
+    cart = cart.filter((item) => lineKey(item.id, item.size, item.pack) !== key);
   }
 
   saveCart();
@@ -548,11 +582,12 @@ function cartTotal() {
     if (!product) continue;
 
     const info = stockFor(line.id, line.size);
-    const label = line.size ? product.name + " (" + line.size + ")" : product.name;
+    const pack = packInfo(line.id, line.size, line.pack);
+    const label = lineLabel(line);
 
     if (info.out) soldOut.push(label);
-    else if (info.amount === null) noPrice.push(label);
-    else total += info.amount * line.qty;
+    else if (pack.amount === null) noPrice.push(label);
+    else total += pack.amount * line.qty;
   }
 
   return {
@@ -563,16 +598,23 @@ function cartTotal() {
   };
 }
 
+/* How one basket line reads: product, size, and whether it is a carton. */
+function lineLabel(line) {
+  const product = PRODUCTS.find((p) => p.id === line.id);
+  const name = product ? product.name : line.id;
+  const withSize = line.size ? name + " (" + line.size + ")" : name;
+  const pack = packInfo(line.id, line.size, line.pack);
+
+  return line.pack === "carton" ? withSize + ", " + pack.label : withSize;
+}
+
 /* The order written down for the shop, one item per line. */
 function orderSummary() {
   return cart
     .map(function (line) {
-      const product = PRODUCTS.find((p) => p.id === line.id);
-      const name = product ? product.name : line.id;
-      const label = line.size ? name + " (" + line.size + ")" : name;
-      const info = stockFor(line.id, line.size);
-      const money = info.amount === null ? "" : "  " + formatNaira(info.amount * line.qty);
-      return label + " x" + line.qty + money;
+      const pack = packInfo(line.id, line.size, line.pack);
+      const money = pack.amount === null ? "" : "  " + formatNaira(pack.amount * line.qty);
+      return lineLabel(line) + " x" + line.qty + money;
     })
     .join("\n");
 }
@@ -745,6 +787,15 @@ function productCard(product) {
           : `<p class="card__size card__size--single">One standard size</p>`
       }
 
+      <!-- Only shown when the sheet gives a carton price for this size. -->
+      <label class="card__size card__pack" hidden>
+        <span>Buy</span>
+        <select aria-label="Single or carton of ${product.name}">
+          <option value="single">Single</option>
+          <option value="carton">Carton</option>
+        </select>
+      </label>
+
       <p class="card__price"></p>
 
       <div class="card__actions">
@@ -793,6 +844,9 @@ function productCard(product) {
   const badge = card.querySelector(".card__badge");
   const priceEl = card.querySelector(".card__price");
   const addBtn = card.querySelector(".btn--add");
+  const packField = card.querySelector(".card__pack");
+  const packSelect = packField.querySelector("select");
+  const chosenPack = () => packSelect.value;
 
   function refreshStock() {
     const size = chosenSize();
@@ -801,9 +855,25 @@ function productCard(product) {
     card.classList.toggle("is-out", info.out);
     badge.hidden = !info.out;
 
+    /* The carton choice only appears where there is a carton price, and its
+       wording carries how many are in it, so "Carton of 4" rather than a bare
+       "Carton" that leaves the customer guessing what they are buying. */
+    packField.hidden = !info.hasCarton || info.out;
+    if (info.hasCarton) {
+      packSelect.options[1].textContent =
+        (info.cartonQty ? "Carton of " + info.cartonQty : "Carton") +
+        (info.cartonPrice ? "  " + info.cartonPrice : "");
+      packSelect.options[0].textContent =
+        "Single" + (info.price ? "  " + info.price : "");
+    } else {
+      packSelect.value = "single";
+    }
+
+    const pack = packInfo(product.id, size, chosenPack());
+
     priceEl.textContent = info.out
       ? "Currently out of stock"
-      : info.price || CONFIG.noPriceText;
+      : pack.display || CONFIG.noPriceText;
 
     addBtn.disabled = info.out;
 
@@ -830,9 +900,11 @@ function productCard(product) {
     });
   }
 
+  packSelect.addEventListener("change", refreshStock);
+
   addBtn.addEventListener("click", function () {
     if (this.disabled) return;
-    addToCart(product.id, chosenSize());
+    addToCart(product.id, chosenSize(), chosenPack());
     flashButton(this, "Added");
   });
 
@@ -894,12 +966,13 @@ const cartAskBtn = document.getElementById("cart-ask");
    counted. Says "sold out" and "no price" plainly rather than showing 0. */
 function cartLineNote(line) {
   const info = stockFor(line.id, line.size);
+  const pack = packInfo(line.id, line.size, line.pack);
 
   if (info.out) return "Sold out";
-  if (info.amount === null) return "Price on request";
+  if (pack.amount === null) return "Price on request";
 
-  const each = line.qty > 1 ? formatNaira(info.amount) + " each &middot; " : "";
-  return each + "<strong>" + formatNaira(info.amount * line.qty) + "</strong>";
+  const each = line.qty > 1 ? formatNaira(pack.amount) + " each &middot; " : "";
+  return each + "<strong>" + formatNaira(pack.amount * line.qty) + "</strong>";
 }
 
 function renderCart() {
@@ -915,7 +988,9 @@ function renderCart() {
     const product = PRODUCTS.find((p) => p.id === line.id);
     if (!product) return;
 
-    const key = lineKey(line.id, line.size);
+    const key = lineKey(line.id, line.size, line.pack);
+    const packLabel =
+      line.pack === "carton" ? packInfo(line.id, line.size, "carton").label : "";
     const item = document.createElement("li");
     item.className = "cart-item";
     item.innerHTML = `
@@ -923,6 +998,7 @@ function renderCart() {
       <div class="cart-item__text">
         <p class="cart-item__name">${product.name}</p>
         ${line.size ? `<p class="cart-item__size">${line.size}</p>` : ""}
+        ${packLabel ? `<p class="cart-item__pack">${packLabel}</p>` : ""}
         <p class="cart-item__money">${cartLineNote(line)}</p>
       </div>
       <div class="cart-item__qty">

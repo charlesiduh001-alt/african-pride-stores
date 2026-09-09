@@ -29,10 +29,10 @@ In Google Sheets: **File**, **Import**, **Upload**, choose that file, and pick
 **Replace spreadsheet**. That saves you typing 31 ids by hand and getting one
 of them subtly wrong.
 
-Or build it yourself with these five column headings in row 1:
+Or build it yourself with these column headings in row 1:
 
-| id | Product | Size | Out of stock | Price |
-| --- | --- | --- | --- | --- |
+| id | Product | Size | Out of stock | Price | Carton price | Carton qty |
+| --- | --- | --- | --- | --- | --- | --- |
 
 - **id** is the only column the website matches on. It has to be exact. The
   list is below.
@@ -41,8 +41,15 @@ Or build it yourself with these five column headings in row 1:
   mean the whole product, every size.
 - **Out of stock** takes `yes`, `y`, `true`, `1` or `x`. Anything else, blank
   included, means available.
-- **Price** is shown exactly as you type it, so write it how you want it read,
-  for example `₦12,500`. Leave blank to say nothing.
+- **Price** is what one of the item costs. Shown exactly as you type it, so
+  write it how you want it read, for example `₦12,500`. Leave blank to say
+  nothing.
+- **Carton price** is what a full carton costs, and **Carton qty** is how many
+  are in it. Fill both in and the customer gets a choice on the card:
+  "Single ₦17,500" or "Carton of 4 ₦70,000".
+- Leave **Carton price** blank and no carton option appears at all for that
+  size, which is what you want for something like the 25 litre keg that is
+  only sold on its own.
 
 ### 2. Publish it
 

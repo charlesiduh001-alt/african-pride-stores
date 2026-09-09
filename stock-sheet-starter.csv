@@ -1,32 +1,32 @@
-id,Product,Size,Out of stock,Price
-laziz-vegetable-oil,Laziz Vegetable Oil,5 litres,,
-laziz-vegetable-oil,Laziz Vegetable Oil,3 litres,,
-laziz-vegetable-oil,Laziz Vegetable Oil,1.6 litres,,
-laziz-vegetable-oil,Laziz Vegetable Oil,1 litre,,
-laziz-vegetable-oil,Laziz Vegetable Oil,750ml,,
-laziz-premium-oil,Laziz Premium Vegetable Oil,5 litres,,
-laziz-premium-oil,Laziz Premium Vegetable Oil,3 litres,,
-active-gold,Active Gold,5 litres,,
-active-gold,Active Gold,3 litres,,
-active-vegetable-oil,Active Vegetable Oil,25 litres,,
-active-vegetable-oil,Active Vegetable Oil,5 litres,,
-active-vegetable-oil,Active Vegetable Oil,3 litres,,
-winners-soya-oil,Winners Soya Oil,5 litres,,
-knorr,Knorr,Chicken cubes,,
-knorr,Knorr,Beef cubes,,
-knorr,Knorr,Seasoning powder,,
-knorr,Knorr,Jollof spice,,
-laziz-cubes,Laziz Seasoning Cubes,"Chicken, 100 x 20",,
-laziz-cubes,Laziz Seasoning Cubes,"Beef, 100 x 20",,
-laziz-ketchup,Laziz Tomato Ketchup,500ml,,
-laziz-mayonnaise,Laziz Mayonnaise,946ml,,
-laziz-salad-cream,Laziz Salad Cream,250ml,,
-checkers-custard,Checkers Custard Powder,Vanilla 2kg,,
-checkers-custard,Checkers Custard Powder,Vanilla 1kg,,
-checkers-custard,Checkers Custard Powder,Vanilla 400g,,
-checkers-custard,Checkers Custard Powder,3n1 Milk 1.5kg,,
-checkers-custard,Checkers Custard Powder,3n1 Milk 1kg,,
-checkers-custard,Checkers Custard Powder,3n1 Milk 400g,,
-checkers-custard,Checkers Custard Powder,Banana 2kg,,
-checkers-custard,Checkers Custard Powder,Banana 1kg,,
-checkers-custard,Checkers Custard Powder,Banana 400g,,
+id,Product,Size,Out of stock,Price,Carton price,Carton qty
+laziz-vegetable-oil,Laziz Vegetable Oil,5 litres,,"₦17,500","₦70,000",4
+laziz-vegetable-oil,Laziz Vegetable Oil,3 litres,,"₦10,670","₦64,000",6
+laziz-vegetable-oil,Laziz Vegetable Oil,1.6 litres,,"₦6,220","₦37,300",6
+laziz-vegetable-oil,Laziz Vegetable Oil,1 litre,,"₦3,590","₦43,000",12
+laziz-vegetable-oil,Laziz Vegetable Oil,750ml,,"₦2,750","₦33,000",12
+laziz-premium-oil,Laziz Premium Vegetable Oil,5 litres,,"₦16,500","₦66,000",4
+laziz-premium-oil,Laziz Premium Vegetable Oil,3 litres,,,,
+active-gold,Active Gold,5 litres,,"₦15,880","₦63,500",4
+active-gold,Active Gold,3 litres,,,,
+active-vegetable-oil,Active Vegetable Oil,25 litres,,"₦59,000",,
+active-vegetable-oil,Active Vegetable Oil,5 litres,,"₦15,750","₦63,000",4
+active-vegetable-oil,Active Vegetable Oil,3 litres,,"₦9,500","₦38,000",4
+winners-soya-oil,Winners Soya Oil,5 litres,,"₦18,000","₦72,000",4
+knorr,Knorr,Chicken cubes,,,,
+knorr,Knorr,Beef cubes,,,,
+knorr,Knorr,Seasoning powder,,,,
+knorr,Knorr,Jollof spice,,,,
+laziz-cubes,Laziz Seasoning Cubes,"Chicken, 100 x 20",,,,
+laziz-cubes,Laziz Seasoning Cubes,"Beef, 100 x 20",,,,
+laziz-ketchup,Laziz Tomato Ketchup,500ml,,"₦1,960","₦23,500",12
+laziz-mayonnaise,Laziz Mayonnaise,946ml,,"₦2,380","₦28,500",12
+laziz-salad-cream,Laziz Salad Cream,250ml,,"₦1,090","₦13,000",12
+checkers-custard,Checkers Custard Powder,Vanilla 2kg,,"₦4,620","₦13,850",3
+checkers-custard,Checkers Custard Powder,Vanilla 1kg,,"₦3,080","₦12,300",4
+checkers-custard,Checkers Custard Powder,Vanilla 400g,,"₦1,190","₦14,250",12
+checkers-custard,Checkers Custard Powder,3n1 Milk 1.5kg,,"₦6,050","₦18,150",3
+checkers-custard,Checkers Custard Powder,3n1 Milk 1kg,,"₦3,820","₦15,250",4
+checkers-custard,Checkers Custard Powder,3n1 Milk 400g,,"₦2,500","₦15,000",6
+checkers-custard,Checkers Custard Powder,Banana 2kg,,"₦4,650","₦13,950",3
+checkers-custard,Checkers Custard Powder,Banana 1kg,,"₦3,100","₦12,400",4
+checkers-custard,Checkers Custard Powder,Banana 400g,,"₦1,200","₦14,400",12

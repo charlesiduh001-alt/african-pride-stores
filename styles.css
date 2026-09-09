@@ -994,6 +994,21 @@ a { color: inherit; }
   line-height: 1.45;
 }
 
+.cart-item__pack {
+  display: inline-block;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  background: var(--cream-2);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-top: 3px;
+}
+
+.card__pack select { font-size: .82rem; }
+
 .cart-item__money {
   font-size: .78rem;
   color: var(--muted);
