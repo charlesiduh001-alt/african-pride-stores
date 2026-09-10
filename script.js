@@ -24,8 +24,12 @@ const CONFIG = {
   // Leaving this empty switches the whole thing off and the site behaves
   // exactly as it does now, so it is safe to leave blank until the sheet
   // is ready.
+  // The gid picks the prices tab specifically. Without it Google serves
+  // whichever sheet it feels is first, and once the order form added its own
+  // tab to this file that turned out to be the order responses, which quietly
+  // wiped every price off the site. Keep the gid.
   stockSheetUrl:
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmMoauyoDpGS4HA_siqdcgBuXreOfDpww44zG84gJQBqDYsTqwyUV3tUkhZO8b_aeTEuXrWaL6y4PQ/pub?output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmMoauyoDpGS4HA_siqdcgBuXreOfDpww44zG84gJQBqDYsTqwyUV3tUkhZO8b_aeTEuXrWaL6y4PQ/pub?gid=1518724287&single=true&output=csv",
 
   // Shown where the sheet has no price for something. Prices move often, so
   // saying nothing is safer than showing a number that has gone stale.
@@ -416,7 +420,17 @@ async function loadStockSheet() {
   const cartonQtyCol = heads.findIndex((h) => h.includes("carton qty") || h.includes("per carton"));
   const priceCol = heads.findIndex((h, i) => h.includes("price") && i !== cartonPriceCol);
 
-  if (idCol === -1) return; // Without an id column there is nothing to match on.
+  // Without an id column there is nothing to match on. The usual cause is the
+  // link pointing at the wrong tab of the spreadsheet, which is silent from a
+  // customer's side, so leave a note for whoever comes looking.
+  if (idCol === -1) {
+    console.warn(
+      "African Pride: the stock sheet loaded but has no id column, so prices " +
+        "were ignored. Check stockSheetUrl points at the prices tab. Columns " +
+        "found: " + rows[0].join(", ")
+    );
+    return;
+  }
 
   for (const row of rows.slice(1)) {
     const id = row[idCol];
