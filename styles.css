@@ -58,6 +58,12 @@
 
 * { box-sizing: border-box; }
 
+/* The browser hides [hidden] elements with display:none, but any class of ours
+   that sets display, such as .btn or .card__size, beats it on specificity and
+   quietly puts the element back. Everything the script hides depends on this
+   rule, so it needs the !important. */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; }
 
 body {
@@ -936,15 +942,26 @@ a { color: inherit; }
   text-align: center;
 }
 
+/* The list keeps a floor of its own so a tall checkout footer cannot squeeze
+   the basket down to nothing. Someone paying needs to see what they are
+   paying for. */
 .drawer__list {
   list-style: none;
   margin: 0;
   padding: 14px 18px;
   overflow-y: auto;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 30vh;
   display: grid;
   gap: 10px;
   align-content: start;
+}
+
+/* If the footer will not fit alongside that, it scrolls rather than pushing
+   the items off the screen. */
+.drawer__foot {
+  flex: 0 1 auto;
+  overflow-y: auto;
 }
 
 .cart-item {
